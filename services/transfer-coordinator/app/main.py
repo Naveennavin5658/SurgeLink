@@ -1,4 +1,5 @@
 """SurgeLink Transfer Coordinator — Service B."""
+import os
 from datetime import timedelta
 
 from flask import Flask, jsonify, request
@@ -19,7 +20,12 @@ from app.transfers import (
 )
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
+allowed_origins = [
+    origin.strip()
+    for origin in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
+    if origin.strip()
+]
+CORS(app, resources={r"/*": {"origins": allowed_origins}}, supports_credentials=True)
 
 limiter = Limiter(
     get_remote_address,
@@ -254,4 +260,6 @@ def health():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5002, debug=True)
+    port = int(os.getenv("PORT", "5002"))
+    debug = os.getenv("FLASK_ENV", "development") != "production"
+    app.run(host="0.0.0.0", port=port, debug=debug)

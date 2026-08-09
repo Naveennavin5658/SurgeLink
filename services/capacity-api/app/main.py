@@ -1,4 +1,6 @@
 """SurgeLink Capacity API — Service A."""
+import os
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from bson import ObjectId
@@ -16,7 +18,12 @@ from app.db import ensure_indexes, get_db, serialize_doc, utcnow
 from app.seed import seed_database
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
+allowed_origins = [
+    origin.strip()
+    for origin in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
+    if origin.strip()
+]
+CORS(app, resources={r"/*": {"origins": allowed_origins}}, supports_credentials=True)
 
 
 @app.before_request
@@ -193,4 +200,6 @@ def seed():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    port = int(os.getenv("PORT", "5001"))
+    debug = os.getenv("FLASK_ENV", "development") != "production"
+    app.run(host="0.0.0.0", port=port, debug=debug)

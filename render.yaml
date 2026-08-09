@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: surgelink-capacity-api
+    env: python
+    plan: free
+    rootDir: services/capacity-api
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 app.main:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://your-frontend-url.example.com
+
+  - type: web
+    name: surgelink-transfer-coordinator
+    env: python
+    plan: free
+    rootDir: services/transfer-coordinator
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 app.main:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://your-frontend-url.example.com

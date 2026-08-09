@@ -12,4 +12,4 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 5002
 
-CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=5002"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5002} --workers 2 app.main:app"]
