@@ -11,7 +11,7 @@ JWT_SECRET = os.environ.get("JWT_SECRET", "surgelink-dev-secret-change-in-prod")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_HOURS = 24
 
-VALID_ROLES = {"hospital_admin", "clinician", "receiving_staff", "regional_coordinator"}
+VALID_ROLES = {"super_admin", "hospital_admin", "clinician", "receiving_staff", "regional_coordinator"}
 
 
 def hash_password(password: str) -> str:

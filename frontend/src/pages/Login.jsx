@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, roleRedirect } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 const DEMO_ACCOUNTS = [
   { email: 'coordinator@region', password: 'coord123', role: 'Regional Coordinator' },
@@ -14,6 +15,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login, loading } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -34,52 +36,74 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      <div className="login-card">
-        <h1>SurgeLink</h1>
-        <p className="subtitle">Sign in to the regional capacity coordination platform</p>
+      <div className="login-shell">
+        <div className="login-hero">
+          <div className="hero-pill">Operational clarity</div>
+          <h2>Coordinate patient transfers without the usual friction.</h2>
+          <p>
+            SurgeLink keeps bed availability, transfer requests, and hospital context visible in one calm workspace so teams can act confidently.
+          </p>
+          <ul>
+            <li>Monitor live bed capacity across hospitals</li>
+            <li>Route and approve transfers in minutes</li>
+            <li>Keep every change visible with an audit trail</li>
+          </ul>
+          <div className="hero-footnote">Built for clinicians, receiving staff, and coordinators.</div>
+        </div>
 
-        {error && <div className="login-error">{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              className="form-input"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoFocus
-            />
-          </div>
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              className="form-input"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: '100%' }}>
-            {loading ? 'Signing in…' : 'Sign in'}
-          </button>
-        </form>
-
-        <div style={{ marginTop: 24, borderTop: '1px solid var(--border)', paddingTop: 16 }}>
-          <p className="text-muted" style={{ fontSize: 11, marginBottom: 8 }}>Demo accounts</p>
-          {DEMO_ACCOUNTS.map((a) => (
-            <button
-              key={a.email}
-              className="btn btn-secondary btn-sm"
-              style={{ marginRight: 6, marginBottom: 6 }}
-              onClick={() => fillDemo(a)}
-              type="button"
-            >
-              {a.role}
+        <div className="login-card">
+          <div className="login-topbar">
+            <div>
+              <h1>Welcome back</h1>
+              <p className="subtitle">Sign in to continue your operations workflow</p>
+            </div>
+            <button type="button" className="theme-toggle" onClick={toggleTheme}>
+              {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
             </button>
-          ))}
+          </div>
+
+          {error && <div className="login-error">{error}</div>}
+
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                className="form-input"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoFocus
+              />
+            </div>
+            <div className="form-group">
+              <label>Password</label>
+              <input
+                className="form-input"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: '100%' }}>
+              {loading ? 'Signing in…' : 'Sign in'}
+            </button>
+          </form>
+
+          <div className="demo-section">
+            <p className="text-muted">Demo accounts</p>
+            {DEMO_ACCOUNTS.map((a) => (
+              <button
+                key={a.email}
+                className="btn btn-secondary btn-sm"
+                onClick={() => fillDemo(a)}
+                type="button"
+              >
+                {a.role}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

@@ -88,6 +88,7 @@ USERS = [
     {"email": "clinician@coastal.memorial", "password": "clin123", "role": "clinician", "hospital_index": 6},
     {"email": "receiving@coastal.memorial", "password": "recv123", "role": "receiving_staff", "hospital_index": 6},
     {"email": "coordinator@region", "password": "coord123", "role": "regional_coordinator", "hospital_index": None},
+    {"email": "super@region", "password": "super123", "role": "super_admin", "hospital_index": None},
 ]
 
 

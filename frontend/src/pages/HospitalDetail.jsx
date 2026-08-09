@@ -27,7 +27,21 @@ export default function HospitalDetail() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const isAdmin = user.role === 'hospital_admin' && user.hospital_id === hospitalId;
+  const canUpdateCapacity = user.role === 'super_admin' || (user.role === 'hospital_admin' && user.hospital_id === hospitalId);
+
+  const roleSummary = user?.role === 'super_admin'
+    ? 'You can review and update capacity for any hospital in the system.'
+    : user?.role === 'hospital_admin'
+      ? canUpdateCapacity
+        ? `You can update capacity for ${hospital?.name || 'this hospital'} because it is your assigned facility.`
+        : 'You can view this hospital’s capacity, but updates are restricted to your assigned facility.'
+      : 'You can review the hospital’s capacity and trend data from this view.';
+
+  const capabilityItems = user?.role === 'super_admin'
+    ? ['Update any hospital capacity', 'Review all regional trends', 'Coordinate cross-region operations']
+    : user?.role === 'hospital_admin'
+      ? ['Update your assigned hospital', 'Track bed availability trends', 'Support local coordination']
+      : ['Review current capacity', 'Inspect historical trends', 'Monitor bed availability'];
 
   useEffect(() => {
     if (!hospitalId) return;
@@ -93,7 +107,22 @@ export default function HospitalDetail() {
       {message && <div className="alert alert-success">{message}</div>}
       {error && <div className="alert alert-error">{error}</div>}
 
-      <div style={{ display: 'grid', gridTemplateColumns: isAdmin ? '1fr 320px' : '1fr', gap: 24 }}>
+      <div className="panel intro-card dashboard-card" style={{ marginBottom: 16 }}>
+        <div className="dashboard-role-summary">
+          <div>
+            <div className="tour-badge">Your access</div>
+            <h3>{user?.role ? user.role.replace(/_/g, ' ') : 'User'}</h3>
+            <p>{roleSummary}</p>
+          </div>
+          <div className="capability-list">
+            {capabilityItems.map((item) => (
+              <span key={item} className="capability-pill">{item}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: canUpdateCapacity ? '1fr 320px' : '1fr', gap: 24 }}>
         <div>
           <div className="panel mb-16">
             <div className="panel-header">
@@ -165,7 +194,7 @@ export default function HospitalDetail() {
           </div>
         </div>
 
-        {isAdmin && (
+        {canUpdateCapacity && (
           <div className="panel" style={{ height: 'fit-content' }}>
             <div className="panel-header">
               <h3>Update Capacity</h3>

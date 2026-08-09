@@ -127,6 +127,22 @@ export default function Transfers() {
     t.to_hospital_id === user.hospital_id &&
     ['requested', 'pending'].includes(t.current_status);
 
+  const transferRoleSummary = user?.role === 'clinician'
+    ? 'You can create transfer requests for patients and track their progress through the network.'
+    : user?.role === 'receiving_staff'
+      ? 'You can review and act on incoming transfer requests for your hospital.'
+      : user?.role === 'hospital_admin'
+        ? 'You can monitor transfer activity related to your assigned hospital and keep operations aligned.'
+        : 'You can oversee transfer coordination and review the overall regional workflow.';
+
+  const transferCapabilities = user?.role === 'clinician'
+    ? ['Create new transfer requests', 'Track request status', 'Coordinate bed handoff']
+    : user?.role === 'receiving_staff'
+      ? ['Accept or reject incoming requests', 'Reserve beds safely', 'Support patient transfers']
+      : user?.role === 'hospital_admin'
+        ? ['Monitor hospital transfer activity', 'Review request status', 'Support operational coordination']
+        : ['Review regional transfers', 'Monitor workflow health', 'Support cross-hospital coordination'];
+
   return (
     <>
       <div className="page-header">
@@ -136,6 +152,21 @@ export default function Transfers() {
 
       {message && <div className="alert alert-success">{message}</div>}
       {error && <div className="alert alert-error">{error}</div>}
+
+      <div className="panel intro-card dashboard-card" style={{ marginBottom: 16 }}>
+        <div className="dashboard-role-summary">
+          <div>
+            <div className="tour-badge">Your workflow</div>
+            <h3>{user?.role ? user.role.replace(/_/g, ' ') : 'User'}</h3>
+            <p>{transferRoleSummary}</p>
+          </div>
+          <div className="capability-list">
+            {transferCapabilities.map((item) => (
+              <span key={item} className="capability-pill">{item}</span>
+            ))}
+          </div>
+        </div>
+      </div>
 
       <div className="filters-bar">
         <select className="form-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>

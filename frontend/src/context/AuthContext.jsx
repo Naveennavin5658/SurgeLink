@@ -50,6 +50,8 @@ export function roleRedirect(role) {
       return '/transfers';
     case 'regional_coordinator':
       return '/dashboard';
+    case 'super_admin':
+      return '/dashboard';
     default:
       return '/dashboard';
   }

@@ -8,7 +8,7 @@ from flask_limiter.util import get_remote_address
 from bson import ObjectId
 
 from app.auth import require_auth, write_audit_log
-from app.db import ensure_indexes, get_db, serialize_doc, utcnow
+from app.db import ensure_aware_datetime, ensure_indexes, get_db, serialize_doc, utcnow
 from app.sse import create_sse_response
 from app.transfers import (
     atomic_decrement_bed,
@@ -111,7 +111,8 @@ def accept_transfer(transfer_id):
     if transfer["current_status"] not in ("requested", "pending"):
         return jsonify({"error": f"Transfer is already {transfer['current_status']}"}), 409
 
-    if transfer.get("expires_at") and transfer["expires_at"] < utcnow():
+    expires_at = ensure_aware_datetime(transfer.get("expires_at"))
+    if expires_at and expires_at < utcnow():
         update_transfer_status(db, transfer_id, "expired", user["user_id"])
         return jsonify({"error": "Transfer request has expired"}), 410
 

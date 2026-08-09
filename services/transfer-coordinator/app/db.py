@@ -11,6 +11,14 @@ def utcnow():
     return datetime.now(timezone.utc)
 
 
+def ensure_aware_datetime(value):
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value
+    return value
+
+
 def get_mongo_client():
     uri = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/surgelink")
     return MongoClient(uri)
