@@ -5,6 +5,57 @@ from app.cache import get_cached_capacity, invalidate_capacity_cache, set_cached
 from app.db import serialize_doc, utcnow
 
 
+def get_bulk_current_capacity(db, hospital_ids: list[str]) -> dict[str, list[dict]]:
+    """Fetch latest capacity snapshot for many hospitals in one query."""
+    if not hospital_ids:
+        return {}
+
+    valid_ids = []
+    for hospital_id in hospital_ids:
+        if hospital_id and ObjectId.is_valid(hospital_id):
+            valid_ids.append(ObjectId(hospital_id))
+
+    if not valid_ids:
+        return {}
+
+    hospital_map = {}
+    for hospital in db.hospitals.find({"_id": {"$in": valid_ids}}):
+        hospital_map[str(hospital["_id"])] = hospital.get("bed_types", [])
+
+    latest_by_key = {}
+    for snapshot in db.capacity_snapshots.find(
+        {"hospital_id": {"$in": valid_ids}},
+        sort=[("hospital_id", 1), ("bed_type", 1), ("timestamp", -1)],
+    ):
+        key = (str(snapshot["hospital_id"]), snapshot["bed_type"])
+        latest_by_key.setdefault(key, snapshot)
+
+    result = {}
+    for hospital_id in hospital_ids:
+        hospital_key = str(hospital_id)
+        result[hospital_key] = []
+        bed_types = hospital_map.get(hospital_key, [])
+
+        for bed_type in bed_types:
+            snapshot = latest_by_key.get((hospital_key, bed_type))
+            if snapshot:
+                result[hospital_key].append({
+                    "bed_type": bed_type,
+                    "available": snapshot["available"],
+                    "total": snapshot["total"],
+                    "timestamp": snapshot["timestamp"].isoformat(),
+                })
+            else:
+                result[hospital_key].append({
+                    "bed_type": bed_type,
+                    "available": 0,
+                    "total": 0,
+                    "timestamp": None,
+                })
+
+    return result
+
+
 def get_current_capacity(db, hospital_id: str) -> list[dict]:
     """Get latest capacity snapshot per bed_type for a hospital."""
     cached = get_cached_capacity(hospital_id)

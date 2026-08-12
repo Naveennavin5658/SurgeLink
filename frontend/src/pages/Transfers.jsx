@@ -59,16 +59,17 @@ export default function Transfers() {
     const list = await capacityApi.getHospitals();
     setHospitals(list);
 
-    const caps = {};
-    for (const h of list) {
-      try {
-        const data = await capacityApi.getCapacity(h._id);
-        caps[h._id] = data.capacity.filter((c) => c.available > 0);
-      } catch {
-        caps[h._id] = [];
-      }
+    if (!list.length) {
+      setHospitalCapacities({});
+      return;
     }
-    setHospitalCapacities(caps);
+
+    const caps = await capacityApi.getBulkCapacity(list.map((h) => h._id));
+    const mappedCaps = {};
+    for (const hospital of list) {
+      mappedCaps[hospital._id] = (caps[hospital._id] || []).filter((c) => c.available > 0);
+    }
+    setHospitalCapacities(mappedCaps);
   }
 
   const hospitalName = (id) => hospitals.find((h) => h._id === id)?.name || id;

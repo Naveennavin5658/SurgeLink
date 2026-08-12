@@ -25,21 +25,15 @@ export default function Dashboard() {
       const hospitalList = await capacityApi.getHospitals(region || undefined);
       setHospitals(hospitalList);
 
-      const capMap = {};
-      await Promise.all(
-        hospitalList.map(async (h) => {
-          try {
-            const data = await capacityApi.getCapacity(h._id);
-            capMap[h._id] = data.capacity;
-          } catch {
-            capMap[h._id] = [];
-          }
-        })
-      );
+      const capMap = hospitalList.length
+        ? await capacityApi.getBulkCapacity(hospitalList.map((h) => h._id))
+        : {};
+
       setCapacities(capMap);
       setLastRefresh(new Date());
     } catch (err) {
       console.error('Dashboard fetch error:', err);
+      setCapacities({});
     } finally {
       setLoading(false);
     }

@@ -50,16 +50,18 @@ export default function HospitalDetail() {
 
   async function loadData() {
     setLoading(true);
+    setError(null);
     try {
-      const hospitals = await capacityApi.getHospitals();
+      const [hospitals, bulkCapacity, histData] = await Promise.all([
+        capacityApi.getHospitals(),
+        capacityApi.getBulkCapacity([hospitalId]),
+        capacityApi.getCapacityHistory(hospitalId, hours),
+      ]);
+
       const h = hospitals.find((x) => x._id === hospitalId);
       setHospital(h);
-
-      const capData = await capacityApi.getCapacity(hospitalId);
-      setCapacity(capData.capacity);
-
-      const histData = await capacityApi.getCapacityHistory(hospitalId, hours);
-      setHistory(histData.history);
+      setCapacity(bulkCapacity[hospitalId] || []);
+      setHistory(histData.history || {});
     } catch (err) {
       setError(err.message);
     } finally {

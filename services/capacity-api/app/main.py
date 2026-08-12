@@ -13,7 +13,12 @@ from app.auth import (
     write_audit_log,
     VALID_ROLES,
 )
-from app.capacity import get_capacity_history, get_current_capacity, write_capacity_snapshot
+from app.capacity import (
+    get_bulk_current_capacity,
+    get_capacity_history,
+    get_current_capacity,
+    write_capacity_snapshot,
+)
 from app.db import ensure_indexes, get_db, serialize_doc, utcnow
 
 
@@ -111,6 +116,24 @@ def list_hospitals():
 
     hospitals = list(db.hospitals.find(query).sort("name", 1))
     return jsonify([serialize_doc(h) for h in hospitals])
+
+
+@app.route("/hospitals/capacity", methods=["GET"])
+@require_auth()
+def get_bulk_hospital_capacity():
+    hospital_ids_raw = request.args.get("hospital_ids", "")
+    hospital_ids = [entry.strip() for entry in hospital_ids_raw.split(",") if entry.strip()]
+
+    if not hospital_ids:
+        return jsonify({"error": "hospital_ids query parameter is required"}), 400
+
+    invalid_ids = [hid for hid in hospital_ids if not ObjectId.is_valid(hid)]
+    if invalid_ids:
+        return jsonify({"error": f"Invalid hospital IDs: {', '.join(invalid_ids)}"}), 400
+
+    db = get_db()
+    result = get_bulk_current_capacity(db, hospital_ids)
+    return jsonify(result)
 
 
 @app.route("/hospitals/<hospital_id>/capacity", methods=["GET"])

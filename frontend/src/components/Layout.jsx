@@ -25,6 +25,7 @@ export default function Layout() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [hospitals, setHospitals] = useState([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const visibleNav = NAV_ITEMS.filter((item) => item.roles.includes(user.role));
 
@@ -71,7 +72,12 @@ export default function Layout() {
 
   return (
     <div className="app-layout">
-      <aside className="sidebar">
+      <div className="mobile-nav-toggle">
+        <button type="button" className="btn btn-secondary btn-sm" onClick={() => setMobileMenuOpen((open) => !open)}>
+          ☰ Menu
+        </button>
+      </div>
+      <aside className={`sidebar ${mobileMenuOpen ? 'open' : 'collapsed'}`}>
         <div className="sidebar-brand">
           <div className="brand-mark">SL</div>
           <div>
@@ -84,6 +90,7 @@ export default function Layout() {
             <NavLink
               key={item.to}
               to={item.to}
+              onClick={() => setMobileMenuOpen(false)}
               className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
             >
               {item.label}

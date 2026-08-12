@@ -41,6 +41,12 @@ export const capacityApi = {
   getHospitals: (region) =>
     request(CAPACITY_API, `/hospitals${region ? `?region=${region}` : ''}`),
 
+  getBulkCapacity: (hospitalIds = []) => {
+    if (!hospitalIds.length) return Promise.resolve({});
+    const qs = new URLSearchParams({ hospital_ids: hospitalIds.join(',') });
+    return request(CAPACITY_API, `/hospitals/capacity?${qs.toString()}`);
+  },
+
   getCapacity: (hospitalId) =>
     request(CAPACITY_API, `/hospitals/${hospitalId}/capacity`),
 
