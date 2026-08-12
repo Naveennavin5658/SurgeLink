@@ -41,7 +41,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 10000);
+    const interval = setInterval(fetchData, 60 * 60 * 1000);
     return () => clearInterval(interval);
   }, [fetchData]);
 
@@ -80,7 +80,7 @@ export default function Dashboard() {
           {lastRefresh && (
             <span className="text-muted" style={{ marginLeft: 12 }}>
               <span className="status-dot live" />
-              Updated {lastRefresh.toLocaleTimeString()} · refreshes every 10s
+              Updated {lastRefresh.toLocaleTimeString()} · refreshes every 1 hour
             </span>
           )}
         </p>
