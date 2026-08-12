@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import { capacityApi } from '../api/client';
 import RoleTour from './RoleTour';
 
@@ -22,7 +21,6 @@ const ROLE_LABELS = {
 
 export default function Layout() {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [hospitals, setHospitals] = useState([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -99,9 +97,6 @@ export default function Layout() {
         </nav>
         <div className="sidebar-footer">
           <div className="sidebar-actions">
-            <button className="theme-toggle" type="button" onClick={toggleTheme}>
-              {theme === 'dark' ? '☀️ Light mode' : '🌙 Dark mode'}
-            </button>
             <RoleTour />
           </div>
           <div>{user.email}</div>

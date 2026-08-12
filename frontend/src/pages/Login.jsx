@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, roleRedirect } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 
 const DEMO_ACCOUNTS = [
   { email: 'coordinator@region', password: 'coord123', role: 'Regional Coordinator' },
@@ -15,7 +14,6 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login, loading } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -57,9 +55,6 @@ export default function Login() {
               <h1>Welcome back</h1>
               <p className="subtitle">Sign in to continue your operations workflow</p>
             </div>
-            <button type="button" className="theme-toggle" onClick={toggleTheme}>
-              {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
-            </button>
           </div>
 
           {error && <div className="login-error">{error}</div>}

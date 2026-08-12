@@ -1,11 +1,46 @@
 const CAPACITY_API = import.meta.env.VITE_CAPACITY_API_URL || 'http://localhost:5001';
 const TRANSFER_API = import.meta.env.VITE_TRANSFER_API_URL || 'http://localhost:5002';
+const CACHE_TTL_MS = 60 * 60 * 1000;
+const apiCache = new Map();
 
 function getToken() {
   return localStorage.getItem('surgelink_token');
 }
 
+function getCacheKey(baseUrl, path, options = {}) {
+  return `${baseUrl}${path}:${(options.method || 'GET').toUpperCase()}`;
+}
+
+function getCachedData(key) {
+  const entry = apiCache.get(key);
+  if (!entry) return null;
+
+  if (Date.now() > entry.expiresAt) {
+    apiCache.delete(key);
+    return null;
+  }
+
+  return entry.data;
+}
+
+function setCachedData(key, data) {
+  apiCache.set(key, {
+    data,
+    expiresAt: Date.now() + CACHE_TTL_MS,
+  });
+}
+
 async function request(baseUrl, path, options = {}) {
+  const method = (options.method || 'GET').toUpperCase();
+  const cacheKey = getCacheKey(baseUrl, path, options);
+
+  if (method === 'GET') {
+    const cached = getCachedData(cacheKey);
+    if (cached !== null) {
+      return cached;
+    }
+  }
+
   const token = getToken();
   const headers = {
     'Content-Type': 'application/json',
@@ -26,6 +61,10 @@ async function request(baseUrl, path, options = {}) {
 
   if (!res.ok) {
     throw new Error(data?.error || `Request failed (${res.status})`);
+  }
+
+  if (method === 'GET') {
+    setCachedData(cacheKey, data);
   }
 
   return data;
