@@ -1,6 +1,7 @@
 """Shared configuration and database utilities."""
 import os
 from datetime import datetime, timezone
+from urllib.parse import urlsplit
 
 import redis
 from bson import ObjectId
@@ -11,6 +12,18 @@ def utcnow():
     return datetime.now(timezone.utc)
 
 
+def get_db_name_from_uri(uri):
+    if not uri:
+        return os.environ.get("MONGODB_DB_NAME", "surgelink")
+
+    path = urlsplit(uri).path or "/"
+    candidate = path.strip("/").split("/")[0].split("?")[0]
+    if candidate:
+        return candidate
+
+    return os.environ.get("MONGODB_DB_NAME", "surgelink")
+
+
 def get_mongo_client():
     uri = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/surgelink")
     return MongoClient(uri)
@@ -19,7 +32,7 @@ def get_mongo_client():
 def get_db():
     client = get_mongo_client()
     uri = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/surgelink")
-    db_name = uri.rsplit("/", 1)[-1].split("?")[0]
+    db_name = get_db_name_from_uri(uri)
     return client[db_name]
 
 

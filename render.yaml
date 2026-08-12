@@ -1,4 +1,5 @@
 services:
+services:
   - type: web
     name: surgelink-capacity-api
     env: python
@@ -11,8 +12,10 @@ services:
         value: production
       - key: JWT_SECRET
         generateValue: true
+      - key: MONGODB_DB_NAME
+        value: surgelink
       - key: CORS_ORIGINS
-        value: https://your-frontend-url.example.com
+        value: https://surge-link.example.com
 
   - type: web
     name: surgelink-transfer-coordinator
@@ -26,5 +29,7 @@ services:
         value: production
       - key: JWT_SECRET
         generateValue: true
+      - key: MONGODB_DB_NAME
+        value: surgelink
       - key: CORS_ORIGINS
-        value: https://your-frontend-url.example.com
+        value: https://surge-link.example.com
