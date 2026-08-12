@@ -15,7 +15,7 @@ from app.auth import (
 )
 from app.capacity import get_capacity_history, get_current_capacity, write_capacity_snapshot
 from app.db import ensure_indexes, get_db, serialize_doc, utcnow
-from app.seed import seed_database
+
 
 app = Flask(__name__)
 allowed_origins = [
@@ -186,17 +186,14 @@ def get_hospital_capacity_history(hospital_id):
     return jsonify({"hospital_id": hospital_id, "hours": hours, "history": history})
 
 
-# ── Health & Seed ─────────────────────────────────────────────────────────────
+# ── Health ─────────────────────────────────────────────────────────────
 
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok", "service": "capacity-api"})
 
 
-@app.route("/seed", methods=["POST"])
-def seed():
-    seed_database()
-    return jsonify({"status": "seeded"})
+
 
 
 if __name__ == "__main__":
